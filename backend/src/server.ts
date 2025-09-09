@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import authRoutes from "./routes/auth";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -12,10 +14,18 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Vite default port
+    credentials: true, // Allow cookies and credentials
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  })
+);
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // MongoDB connection
 const MONGODB_URI =
@@ -33,6 +43,7 @@ mongoose
   });
 
 // Routes
+app.use("/auth", authRoutes);
 
 // Health check
 app.get("/health", (req: Request, res: Response) => {
