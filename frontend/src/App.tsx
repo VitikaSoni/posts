@@ -2,6 +2,7 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { Box } from "@mui/material";
 import Landing from "./pages/Landing";
 import Register from "./pages/Register";
 import ROUTES from "./configs/routes";
@@ -190,48 +191,62 @@ function App() {
           ROUTES.REGISTER,
         ]}
       />
-      <Routes>
-        <Route
-          path={ROUTES.LANDING}
-          element={
-            <PublicRoute>
-              <Landing />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path={ROUTES.REGISTER}
-          element={
-            <PublicRoute>
-              <Register />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path={ROUTES.LOGIN}
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path={ROUTES.POSTS}
-          element={
-            <ProtectedRoute>
-              <Posts />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path={ROUTES.PROFILE}
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+      <Box
+        component="main"
+        sx={{
+          marginLeft: { lg: "280px" },
+          minHeight: "100vh",
+          backgroundColor: "background.default",
+          position: "relative",
+          top: 0,
+          left: 0,
+          padding: 3,
+          width: { lg: "calc(100% - 280px)" },
+        }}
+      >
+        <Routes>
+          <Route
+            path={ROUTES.LANDING}
+            element={
+              <PublicRoute>
+                <Landing />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path={ROUTES.REGISTER}
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path={ROUTES.LOGIN}
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path={ROUTES.POSTS}
+            element={
+              <ProtectedRoute>
+                <Posts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.PROFILE}
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Box>
     </ThemeProvider>
   );
 }

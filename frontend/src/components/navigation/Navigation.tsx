@@ -114,7 +114,8 @@ const Navigation = ({
   // Desktop Drawer component
   const DesktopDrawer = () => (
     <Drawer
-      variant="permanent"
+      variant="persistent"
+      open={true}
       sx={{
         display: { xs: "none", lg: "block" },
         "& .MuiDrawer-paper": {
@@ -122,6 +123,11 @@ const Navigation = ({
           boxSizing: "border-box",
           backgroundColor: "#f8fafc",
           borderRight: "1px solid #e2e8f0",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          height: "100vh",
+          zIndex: 1,
         },
       }}
     >
