@@ -1,16 +1,18 @@
+import dotenv from "dotenv";
+
+// Load environment variables first
+dotenv.config();
+
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import mongoose from "mongoose";
 import { createClient } from "redis";
-import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import postsRoutes from "./routes/posts";
 import profileRoutes from "./routes/profile";
 import cookieParser from "cookie-parser";
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -123,4 +125,4 @@ app.listen(PORT, () => {
 });
 
 // Export Redis client for use in other modules
-export { redisClient };
+// export { redisClient };
