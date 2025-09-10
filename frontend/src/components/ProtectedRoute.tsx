@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { type RootState } from "@/store";
 import { refreshAccessToken } from "@/store/authSlice";
+import Loading from "./Loading";
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
@@ -32,7 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Show loading state while checking authentication
   if (isCheckingAuth) {
-    return <div>Loading...</div>; // You can replace this with a proper loading component
+    return <Loading />;
   }
 
   if (!accessToken) {

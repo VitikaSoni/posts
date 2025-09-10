@@ -14,6 +14,7 @@ import {
 import { Person, Edit, Save, Cancel } from "@mui/icons-material";
 import { ProfileService, type ProfileResponse } from "@/services/profile";
 import { useNotifications } from "@/hooks/useNotifications";
+import Loading from "@/components/Loading";
 
 const Profile: React.FC = () => {
   // const { showNotification } = useNotifications();
@@ -106,18 +107,7 @@ const Profile: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+    return <Loading />;
   }
 
   if (!profile) {

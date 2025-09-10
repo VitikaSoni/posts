@@ -55,6 +55,7 @@ router.put("/", authMiddleware, async (req: AuthRequest, res) => {
       name: user.name,
       username: user.username,
       role: user.role,
+      message: "Profile updated successfully.",
     });
   } catch (err) {
     return res.status(500).json({ message: "Internal server error" });
