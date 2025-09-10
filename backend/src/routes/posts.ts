@@ -83,6 +83,42 @@ router.get("/", async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /posts/:id - Get a single post by ID
+router.get(
+  "/:id",
+  async (req: AuthRequest & { params: { id: string } }, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: "Invalid post ID" });
+      }
+
+      const post = await Post.findById(id).populate("author", "username email");
+
+      if (!post) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      // Check if user can view this post
+      // Users can view their own posts or admins can view any post
+      if (
+        post.author.id.toString() !== req.user?.userId &&
+        req.user?.role !== "admin"
+      ) {
+        return res.status(403).json({
+          error: "Access denied. You can only view your own posts.",
+        });
+      }
+
+      return res.json(post);
+    } catch (error) {
+      console.error("Error fetching post:", error);
+      return res.status(500).json({ error: "Failed to fetch post" });
+    }
+  }
+);
+
 // POST /posts - Create a new post
 router.post(
   "/",

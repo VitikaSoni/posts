@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node src/server.ts",
+    "dev": "nodemon src/server.ts",
     "dev:watch": "nodemon",
     "dev:watch:verbose": "nodemon --verbose",
     "test": "echo \"Error: no test specified\" && exit 1"

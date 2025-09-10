@@ -3,6 +3,7 @@ const ROUTES = {
   REGISTER: "/register",
   LOGIN: "/login",
   POSTS: "/posts",
+  POST: "/post/:postId",
   MY_POSTS: "/my-posts",
   PROFILE: "/profile",
 };

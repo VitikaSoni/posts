@@ -12,6 +12,7 @@ import { Box, Button, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import EditDialog, { type PostData } from "./EditDialog";
@@ -23,6 +24,8 @@ import {
 } from "@/services/post";
 import { useSelector } from "react-redux";
 import { type RootState } from "@/store";
+import ROUTES from "@/configs/routes";
+import { useNavigate } from "react-router-dom";
 
 const initialRows: GridRowsProp = [];
 
@@ -37,8 +40,7 @@ export default function PostsTable({
   showCreateButton = true,
   filter = "all",
 }: PostsTableProps) {
-  // const { role } = useSelector((state: RootState) => state.auth);
-
+  const navigate = useNavigate();
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {}
   );
@@ -162,6 +164,13 @@ export default function PostsTable({
     }
   };
 
+  const handleViewClick = (id: GridRowId) => () => {
+    const post = rows.find((row) => row.id === id);
+    if (post) {
+      navigate(ROUTES.POST.replace(":postId", post.id.toString()));
+    }
+  };
+
   const handleDeleteConfirm = async () => {
     if (!postToDelete || !postToDelete.id) return;
 
@@ -214,7 +223,7 @@ export default function PostsTable({
       field: "actions",
       type: "actions",
       headerName: "Actions",
-      width: 100,
+      width: 120,
       cellClassName: "actions",
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -253,6 +262,12 @@ export default function PostsTable({
             icon={<DeleteIcon />}
             label="Delete"
             onClick={handleDeleteClick(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            icon={<VisibilityIcon />}
+            label="View"
+            onClick={handleViewClick(id)}
             color="inherit"
           />,
         ];
