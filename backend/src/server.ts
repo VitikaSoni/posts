@@ -47,47 +47,55 @@ mongoose
   });
 
 // Redis connection
-const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
-const REDIS_PASSWORD = process.env.REDIS_PASSWORD || "redis123";
+// const REDIS_URL = process.env.REDIS_URL;
+// const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 
-const redisClient = createClient({
-  url: REDIS_URL,
-  password: REDIS_PASSWORD,
-});
+// if (!REDIS_URL) {
+//   throw new Error("REDIS_URL is not defined");
+// }
 
-redisClient.on("error", (error) => {
-  console.error("Redis connection error:", error);
-});
+// if (!REDIS_PASSWORD) {
+//   throw new Error("REDIS_PASSWORD is not defined");
+// }
 
-redisClient.on("connect", () => {
-  console.log("Connected to Redis successfully");
-});
+// const redisClient = createClient({
+//   url: REDIS_URL,
+//   password: REDIS_PASSWORD,
+// });
 
-redisClient.on("ready", () => {
-  console.log("Redis client ready");
-});
+// redisClient.on("error", (error) => {
+//   console.error("Redis connection error:", error);
+// });
 
-redisClient.on("end", () => {
-  console.log("Redis connection ended");
-});
+// redisClient.on("connect", () => {
+//   console.log("Connected to Redis successfully");
+// });
 
-// Connect to Redis
-redisClient.connect().catch((error) => {
-  console.error("Failed to connect to Redis:", error);
-});
+// redisClient.on("ready", () => {
+//   console.log("Redis client ready");
+// });
 
-// Graceful shutdown
-process.on("SIGINT", async () => {
-  console.log("Shutting down gracefully...");
-  await redisClient.quit();
-  process.exit(0);
-});
+// redisClient.on("end", () => {
+//   console.log("Redis connection ended");
+// });
 
-process.on("SIGTERM", async () => {
-  console.log("Shutting down gracefully...");
-  await redisClient.quit();
-  process.exit(0);
-});
+// // Connect to Redis
+// redisClient.connect().catch((error) => {
+//   console.error("Failed to connect to Redis:", error);
+// });
+
+// // Graceful shutdown
+// process.on("SIGINT", async () => {
+//   console.log("Shutting down gracefully...");
+//   await redisClient.quit();
+//   process.exit(0);
+// });
+
+// process.on("SIGTERM", async () => {
+//   console.log("Shutting down gracefully...");
+//   await redisClient.quit();
+//   process.exit(0);
+// });
 
 // Routes
 app.use("/auth", authRoutes);
