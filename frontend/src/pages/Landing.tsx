@@ -17,6 +17,9 @@ const Landing = () => {
     <Box
       sx={{
         minHeight: "100vh",
+        marginLeft: "-140px",
+        width: "100%",
+        marginHorizontal: "auto",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

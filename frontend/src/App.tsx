@@ -198,6 +198,7 @@ function App() {
         component="main"
         sx={{
           marginLeft: { lg: "280px" },
+          marginHorizontal: "auto",
           minHeight: "100vh",
           backgroundColor: "background.default",
           position: "relative",

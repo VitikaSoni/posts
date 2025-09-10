@@ -165,6 +165,7 @@ const Register = () => {
   return (
     <Box
       sx={{
+        marginLeft: "-140px",
         minHeight: "100vh",
         display: "flex",
         p: 3,
