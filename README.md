@@ -1,5 +1,7 @@
 ## Posts
 
+[Demo Video](https://www.youtube.com/watch?v=K5o0xLJiKws)
+
 ### Tech stack
 
 - React, Redux (Slice version), React Router, and Material UI.
@@ -8,7 +10,7 @@
 
 ### Project Setup
 
-Database:
+Database
 
 - `docker volume create mongodb_data`
 - `docker compose up mongodb`
