@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Drawer,
   List,
@@ -24,6 +25,7 @@ import {
   Person,
 } from "@mui/icons-material";
 import ROUTES from "../../configs/routes";
+import { logout } from "@/store/authSlice";
 // import { signOut } from "@/configs/firebase";
 
 interface NavItem {
@@ -43,6 +45,7 @@ const Navigation = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [profileAnchorEl, setProfileAnchorEl] = useState<null | HTMLElement>(
     null
   );
@@ -78,7 +81,7 @@ const Navigation = ({
 
   const handleLogout = async () => {
     try {
-      // await signOut();
+      await dispatch(logout() as any);
       navigate(ROUTES.LANDING, { replace: true });
     } catch (error) {
       console.error("Error during logout:", error);

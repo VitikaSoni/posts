@@ -12,7 +12,7 @@ import {
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import ROUTES from "../configs/routes";
 import { useDispatch } from "react-redux";
-import { loginUser } from "@/services/auth";
+import { AuthService } from "@/services/auth";
 import { setCredentials } from "@/store/authSlice";
 
 interface FormData {
@@ -87,7 +87,10 @@ const Login = () => {
     setSubmitError("");
 
     try {
-      const loginData = await loginUser(formData.username, formData.password);
+      const loginData = await AuthService.loginUser(
+        formData.username,
+        formData.password
+      );
       dispatch(
         setCredentials({
           accessToken: loginData.accessToken,

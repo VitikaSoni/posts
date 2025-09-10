@@ -1,43 +1,40 @@
-import axios from "axios";
-
-// Use your backend URL
-const API_URL = "http://localhost:3001/auth";
+import api from "@/configs/axios";
 
 export interface LoginResponse {
   accessToken: string;
 }
 
-export const registerUser = async (
-  username: string,
-  password: string,
-  role?: string
-) => {
-  const res = await axios.post(`${API_URL}/register`, {
-    username,
-    password,
-    role,
-  });
-  return res.data;
-};
+const BASE_PATH = "/auth";
 
-export const loginUser = async (
-  username: string,
-  password: string
-): Promise<LoginResponse> => {
-  const res = await axios.post(
-    `${API_URL}/login`,
-    { username, password },
-    { withCredentials: true }
-  );
-  // withCredentials:true ensures cookies (refresh token) are sent
-  return res.data;
-};
+export const AuthService = {
+  registerUser: async function (
+    username: string,
+    password: string,
+    role?: string
+  ) {
+    api.post(`${BASE_PATH}/register`, {
+      username,
+      password,
+      role,
+    });
+  },
 
-export const refreshAccessToken = async (): Promise<LoginResponse> => {
-  const res = await axios.post(
-    `${API_URL}/refresh_token`,
-    {},
-    { withCredentials: true }
-  );
-  return res.data;
+  loginUser: async function (
+    username: string,
+    password: string
+  ): Promise<LoginResponse> {
+    const res = await api.post(`${BASE_PATH}/login`, {
+      username,
+      password,
+    });
+    // withCredentials:true ensures cookies (refresh token) are sent
+    return res.data;
+  },
+  refreshAccessToken: async function (): Promise<LoginResponse> {
+    const res = await api.post(`${BASE_PATH}/refresh_token`, {});
+    return res.data;
+  },
+  logoutUser: async function () {
+    await api.post(`${BASE_PATH}/logout`, {});
+  },
 };

@@ -1,10 +1,10 @@
 // src/store/authSlice.ts
+import { AuthService } from "@/services/auth";
 import {
   createAsyncThunk,
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import axios from "axios";
 
 interface AuthState {
   accessToken: string | null;
@@ -14,13 +14,17 @@ interface AuthState {
 const initialState: AuthState = { accessToken: null, username: null };
 
 export const logout = createAsyncThunk("auth/logout", async () => {
-  await axios.post(
-    "http://localhost:3001/auth/logout",
-    {},
-    { withCredentials: true }
-  );
+  await AuthService.logoutUser();
   return null;
 });
+
+export const refreshAccessToken = createAsyncThunk(
+  "auth/refreshAccessToken",
+  async () => {
+    const data = await AuthService.refreshAccessToken();
+    return data;
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -35,10 +39,20 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(logout.fulfilled, (state) => {
-      state.accessToken = null;
-      state.username = null;
-    });
+    builder
+      .addCase(logout.fulfilled, (state) => {
+        state.accessToken = null;
+        state.username = null;
+      })
+      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+        state.accessToken = action.payload.accessToken;
+        // Keep the existing username, don't update it on refresh
+      })
+      .addCase(refreshAccessToken.rejected, (state) => {
+        // If refresh fails, clear the auth state
+        state.accessToken = null;
+        state.username = null;
+      });
   },
 });
 

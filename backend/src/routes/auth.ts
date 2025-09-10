@@ -49,7 +49,7 @@ router.post("/login", async (req, res) => {
       httpOnly: true,
       secure: false, // must be false for localhost http
       sameSite: "lax", // "lax" works for localhost
-      path: "/auth/refresh_token", // cookie only sent to this endpoint
+      path: "/", // cookie accessible from all endpoints
     });
     return res.json({ accessToken });
   } catch (error) {
@@ -59,9 +59,9 @@ router.post("/login", async (req, res) => {
 
 // Refresh token endpoint
 router.post("/refresh_token", async (req, res) => {
-  const token = req.cookies.jid;
+  const token = req.cookies.refreshToken;
   if (!token) {
-    return res.status(401).json({ accessToken: "" });
+    return res.status(401).json({ message: "Refresh token not provided" });
   }
 
   try {
@@ -71,13 +71,13 @@ router.post("/refresh_token", async (req, res) => {
     };
     const user = await User.findById(payload.userId);
     if (!user) {
-      return res.status(401).json({ accessToken: "" });
+      return res.status(401).json({ message: "Invalid refresh token" });
     }
 
     const accessToken = createAccessToken(user);
     return res.json({ accessToken });
   } catch (err) {
-    return res.status(401).json({ accessToken: "" });
+    return res.status(401).json({ message: "Invalid refresh token" });
   }
 });
 
@@ -86,7 +86,7 @@ router.post("/logout", (req, res) => {
     httpOnly: true,
     sameSite: "lax",
     secure: false,
-    path: "/auth/refresh_token",
+    path: "/",
   });
   res.json({ message: "Logged out successfully" });
 });

@@ -9,8 +9,7 @@ import ROUTES from "./configs/routes";
 import Navigation from "./components/navigation/Navigation";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { setCredentials } from "@/store/authSlice";
-import { refreshAccessToken } from "@/services/auth";
+import { refreshAccessToken } from "@/store/authSlice";
 import Login from "./pages/Login";
 import Posts from "./pages/Posts";
 import PublicRoute from "./components/PublicRoute";
@@ -162,18 +161,19 @@ const theme = createTheme({
 function App() {
   const dispatch = useDispatch();
 
+  // Check for existing tokens and refresh on app initialization
   useEffect(() => {
-    const initAuth = async () => {
+    const initializeAuth = async () => {
       try {
-        const data = await refreshAccessToken();
-        dispatch(
-          setCredentials({ accessToken: data.accessToken, username: "" })
-        );
-      } catch {
-        // No valid refresh token, user stays logged out
+        // Try to refresh the access token using the refresh token
+        await dispatch(refreshAccessToken() as any).unwrap();
+      } catch (error) {
+        // If refresh fails, user will be redirected to login
+        console.log("Token refresh failed on app initialization:", error);
       }
     };
-    initAuth();
+
+    initializeAuth();
   }, [dispatch]);
 
   return (

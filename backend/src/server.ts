@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite default port
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Vite default port
     credentials: true, // Allow cookies and credentials
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
@@ -28,9 +28,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // MongoDB connection
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb://admin:password123@localhost:27017/posts_dashboard?authSource=admin";
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI is not defined");
+}
 
 mongoose
   .connect(MONGODB_URI)

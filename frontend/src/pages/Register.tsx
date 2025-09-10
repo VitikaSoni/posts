@@ -18,7 +18,7 @@ import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { Person, AdminPanelSettings } from "@mui/icons-material";
 import ROUTES from "../configs/routes";
 import { useDispatch } from "react-redux";
-import { registerUser, loginUser } from "@/services/auth";
+import { AuthService } from "@/services/auth";
 import { setCredentials } from "@/store/authSlice";
 
 interface FormData {
@@ -124,10 +124,17 @@ const Register = () => {
 
     try {
       // Simulate API call
-      await registerUser(formData.username, formData.password, formData.role);
+      await AuthService.registerUser(
+        formData.username,
+        formData.password,
+        formData.role
+      );
 
       // 2️⃣ Automatically log in the user after registration
-      const loginData = await loginUser(formData.username, formData.password);
+      const loginData = await AuthService.loginUser(
+        formData.username,
+        formData.password
+      );
       dispatch(
         setCredentials({
           accessToken: loginData.accessToken,
