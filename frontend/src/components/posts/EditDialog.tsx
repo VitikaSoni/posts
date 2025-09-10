@@ -112,9 +112,27 @@ export default function EditDialog({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
+
+    // Check file size (10MB limit to match backend)
+    if (file && file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        file: "File size must be less than 10MB",
+      }));
+      setSelectedFile(null);
+      // Clear the file input
+      const fileInput = document.getElementById(
+        "file-input"
+      ) as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+      return;
+    }
+
     setSelectedFile(file);
 
-    // Clear file error when user selects a file
+    // Clear file error when user selects a valid file
     if (errors.file) {
       setErrors((prev) => ({
         ...prev,
@@ -243,6 +261,13 @@ export default function EditDialog({
           <Box>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
               Attach File (Optional)
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 1, display: "block" }}
+            >
+              Maximum file size: 10MB
             </Typography>
             <input
               id="file-input"
