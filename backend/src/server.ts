@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import mongoose from "mongoose";
+import { createClient } from "redis";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import postsRoutes from "./routes/posts";
@@ -18,7 +19,7 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Vite default port
+    origin: process.env.FRONTEND_URL, // Vite default port
     credentials: true, // Allow cookies and credentials
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
@@ -45,6 +46,49 @@ mongoose
     process.exit(1);
   });
 
+// Redis connection
+const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD || "redis123";
+
+const redisClient = createClient({
+  url: REDIS_URL,
+  password: REDIS_PASSWORD,
+});
+
+redisClient.on("error", (error) => {
+  console.error("Redis connection error:", error);
+});
+
+redisClient.on("connect", () => {
+  console.log("Connected to Redis successfully");
+});
+
+redisClient.on("ready", () => {
+  console.log("Redis client ready");
+});
+
+redisClient.on("end", () => {
+  console.log("Redis connection ended");
+});
+
+// Connect to Redis
+redisClient.connect().catch((error) => {
+  console.error("Failed to connect to Redis:", error);
+});
+
+// Graceful shutdown
+process.on("SIGINT", async () => {
+  console.log("Shutting down gracefully...");
+  await redisClient.quit();
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  console.log("Shutting down gracefully...");
+  await redisClient.quit();
+  process.exit(0);
+});
+
 // Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postsRoutes);
@@ -69,3 +113,6 @@ app.use("*", (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Export Redis client for use in other modules
+export { redisClient };
