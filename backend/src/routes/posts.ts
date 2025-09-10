@@ -10,6 +10,8 @@ import {
   PostResponse,
   IFileMetadata,
 } from "../types/post";
+import Comment from "../models/Comment";
+import { CommentResponse, CreateCommentRequest } from "../types/comment";
 
 const router = express.Router();
 
@@ -98,17 +100,6 @@ router.get(
 
       if (!post) {
         return res.status(404).json({ error: "Post not found" });
-      }
-
-      // Check if user can view this post
-      // Users can view their own posts or admins can view any post
-      if (
-        post.author.id.toString() !== req.user?.userId &&
-        req.user?.role !== "admin"
-      ) {
-        return res.status(403).json({
-          error: "Access denied. You can only view your own posts.",
-        });
       }
 
       return res.json(post);
@@ -261,6 +252,87 @@ router.delete(
     } catch (error) {
       console.error("Error deleting post:", error);
       return res.status(500).json({ error: "Failed to delete post" });
+    }
+  }
+);
+
+// GET /comments - Get comments for a specific post with pagination
+router.get(
+  "/:postId/comments",
+  async (req: AuthRequest & { params: { postId: string } }, res: Response) => {
+    try {
+      const { postId } = req.params;
+
+      if (!postId) {
+        return res.status(400).json({ error: "Post ID is required" });
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ error: "Invalid post ID" });
+      }
+
+      // Verify that the post exists
+      const post = await Post.findById(postId);
+      if (!post) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      const comments = await Comment.find({ post: postId })
+        .populate("author", "username name")
+        .sort({ createdAt: -1 });
+
+      const response: CommentResponse = {
+        comments,
+      };
+
+      return res.json(response);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      return res.status(500).json({ error: "Failed to fetch comments" });
+    }
+  }
+);
+
+// POST /comments - Create a new comment
+router.post(
+  "/:postId/comments",
+  async (req: AuthRequest & { body: CreateCommentRequest }, res: Response) => {
+    try {
+      const { content } = req.body;
+      const { postId } = req.params;
+
+      if (!content || !postId) {
+        return res
+          .status(400)
+          .json({ error: "Content and post ID are required" });
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ error: "Invalid post ID" });
+      }
+
+      // Verify that the post exists
+      const post = await Post.findById(postId);
+      if (!post) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      const newComment = new Comment({
+        content,
+        author: new mongoose.Types.ObjectId(req.user?.userId),
+        post: new mongoose.Types.ObjectId(postId),
+      });
+
+      const savedComment = await newComment.save();
+      await savedComment.populate("author", "username name");
+
+      return res.status(201).json({
+        ...savedComment.toObject(),
+        message: "Comment created successfully",
+      });
+    } catch (error) {
+      console.error("Error creating comment:", error);
+      return res.status(500).json({ error: "Failed to create comment" });
     }
   }
 );

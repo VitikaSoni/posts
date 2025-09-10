@@ -204,6 +204,7 @@ function App() {
           top: 0,
           left: 0,
           padding: 3,
+          pb: 10,
           width: { lg: "calc(100% - 280px)" },
         }}
       >

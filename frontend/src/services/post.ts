@@ -52,6 +52,25 @@ export interface UpdateStatusRequest {
   status: "draft" | "published" | "archived";
 }
 
+export interface Comment {
+  _id: string;
+  content: string;
+  author: {
+    _id: string;
+    username: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommentResponse {
+  comments: Comment[];
+}
+
+export interface CreateCommentRequest {
+  content: string;
+}
+
 const BASE_PATH = "/posts";
 
 export const PostService = {
@@ -139,54 +158,16 @@ export const PostService = {
     return res.data;
   },
 
-  // Update post status only
-  updatePostStatus: async function (
-    id: string,
-    statusData: UpdateStatusRequest
-  ): Promise<Post> {
-    const res = await api.patch(`${BASE_PATH}/${id}/status`, statusData);
+  getComments: async function (postId: string): Promise<CommentResponse> {
+    const res = await api.get(`${BASE_PATH}/${postId}/comments`);
     return res.data;
   },
 
-  // Get posts by status
-  getPostsByStatus: async function (
-    status: "draft" | "published" | "archived",
-    params?: PostQueryParams
-  ): Promise<PostResponse> {
-    const queryParams = new URLSearchParams();
-
-    if (params?.page) queryParams.append("page", params.page.toString());
-    if (params?.limit) queryParams.append("limit", params.limit.toString());
-    if (params?.search) queryParams.append("search", params.search);
-
-    // Add status filter to search query
-    const searchQuery = params?.search
-      ? `${params.search} status:${status}`
-      : `status:${status}`;
-    queryParams.append("search", searchQuery);
-
-    const queryString = queryParams.toString();
-    const url = `${BASE_PATH}?${queryString}`;
-
-    const res = await api.get(url);
-    return res.data;
-  },
-
-  // Search posts
-  searchPosts: async function (
-    searchTerm: string,
-    params?: PostQueryParams
-  ): Promise<PostResponse> {
-    const queryParams = new URLSearchParams();
-
-    if (params?.page) queryParams.append("page", params.page.toString());
-    if (params?.limit) queryParams.append("limit", params.limit.toString());
-    queryParams.append("search", searchTerm);
-
-    const queryString = queryParams.toString();
-    const url = `${BASE_PATH}?${queryString}`;
-
-    const res = await api.get(url);
+  createComment: async function (
+    postId: string,
+    content: string
+  ): Promise<Comment> {
+    const res = await api.post(`${BASE_PATH}/${postId}/comments`, { content });
     return res.data;
   },
 };

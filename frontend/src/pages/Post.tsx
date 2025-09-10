@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PostService, type Post } from "@/services/post";
 import Loading from "@/components/Loading";
+import CommentsSection from "@/components/comments/CommentsSection";
 import {
   ArrowBack,
   Person,
@@ -19,11 +20,10 @@ import {
   Typography,
   Paper,
   Avatar,
-  Stack,
   Divider,
 } from "@mui/material";
 
-const Post = () => {
+export default function Post() {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
@@ -74,14 +74,15 @@ const Post = () => {
       <Box
         sx={{
           minHeight: "100vh",
+          mb: 20,
 
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <Card sx={{ maxWidth: 400, width: "100%", textAlign: "center" }}>
-          <CardContent sx={{ p: 4 }}>
+        <Card sx={{ width: "100%", textAlign: "center" }}>
+          <CardContent>
             <Avatar
               sx={{
                 width: 64,
@@ -142,7 +143,7 @@ const Post = () => {
           Back to Posts
         </Button>
       </Box>
-      <Container maxWidth="md">
+      <Container maxWidth="md" sx={{ px: "0" }}>
         {/* Header */}
 
         {/* Post Content */}
@@ -160,7 +161,7 @@ const Post = () => {
                 {post.title}
               </Typography>
 
-              <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+              <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <Chip
                   icon={<Person />}
                   label={post.author.username}
@@ -184,7 +185,7 @@ const Post = () => {
                     color="default"
                   />
                 )}
-              </Stack>
+              </Box>
 
               <Chip
                 label={
@@ -254,9 +255,10 @@ const Post = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Comments Section */}
+        {postId && <CommentsSection postId={postId} />}
       </Container>
     </Box>
   );
-};
-
-export default Post;
+}
