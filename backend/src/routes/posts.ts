@@ -2,11 +2,13 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
+import upload from "../middleware/upload";
 import {
   CreatePostRequest,
   UpdatePostRequest,
   PostQueryParams,
   PostResponse,
+  IFileMetadata,
 } from "../types/post";
 
 const router = express.Router();
@@ -84,7 +86,11 @@ router.get("/", async (req: AuthRequest, res: Response) => {
 // POST /posts - Create a new post
 router.post(
   "/",
-  async (req: AuthRequest & { body: CreatePostRequest }, res: Response) => {
+  upload.single("file"),
+  async (
+    req: AuthRequest & { body: CreatePostRequest; file?: Express.Multer.File },
+    res: Response
+  ) => {
     try {
       const { title, content, status = "draft" } = req.body;
 
@@ -94,11 +100,21 @@ router.post(
           .json({ error: "Title and content are required" });
       }
 
+      // Extract file metadata if file is uploaded
+      let fileMetadata: IFileMetadata | undefined;
+      if (req.file) {
+        fileMetadata = {
+          name: req.file.originalname,
+          type: req.file.mimetype,
+        };
+      }
+
       const newPost = new Post({
         title,
         content,
         author: new mongoose.Types.ObjectId(req.user?.userId),
         status,
+        fileMetadata,
       });
 
       const savedPost = await newPost.save();
@@ -118,8 +134,13 @@ router.post(
 // PUT /posts/:id - Update a post
 router.put(
   "/:id",
+  upload.single("file"),
   async (
-    req: AuthRequest & { params: { id: string }; body: UpdatePostRequest },
+    req: AuthRequest & {
+      params: { id: string };
+      body: UpdatePostRequest;
+      file?: Express.Multer.File;
+    },
     res: Response
   ) => {
     try {
@@ -146,6 +167,14 @@ router.put(
       if (title !== undefined) updateData.title = title;
       if (content !== undefined) updateData.content = content;
       if (status !== undefined) updateData.status = status;
+
+      // Handle file upload for updates
+      if (req.file) {
+        updateData.fileMetadata = {
+          name: req.file.originalname,
+          type: req.file.mimetype,
+        };
+      }
 
       const updatedPost = await Post.findByIdAndUpdate(id, updateData, {
         new: true,

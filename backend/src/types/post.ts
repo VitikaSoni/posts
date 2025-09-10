@@ -1,11 +1,17 @@
 import { Document, Types } from "mongoose";
 import { IUser, IUserDocument } from "./user";
 
+export interface IFileMetadata {
+  name: string;
+  type: string;
+}
+
 export interface IPost {
   title: string;
   content: string;
   author: Types.ObjectId | IUserDocument;
   status: "draft" | "published" | "archived";
+  fileMetadata?: IFileMetadata;
   createdAt: Date;
   updatedAt: Date;
 }

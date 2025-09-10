@@ -24,6 +24,16 @@ const postSchema = new Schema<IPostDocument>(
       enum: ["draft", "published", "archived"],
       default: "draft",
     },
+    fileMetadata: {
+      name: {
+        type: String,
+        trim: true,
+      },
+      type: {
+        type: String,
+        trim: true,
+      },
+    },
   },
   {
     timestamps: true,

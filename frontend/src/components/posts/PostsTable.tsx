@@ -37,7 +37,7 @@ export default function PostsTable({
   showCreateButton = true,
   filter = "all",
 }: PostsTableProps) {
-  const { role } = useSelector((state: RootState) => state.auth);
+  // const { role } = useSelector((state: RootState) => state.auth);
 
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {}
@@ -70,6 +70,7 @@ export default function PostsTable({
         content: post.content,
         author: post.author.username,
         status: post.status,
+        fileMetadata: post.fileMetadata,
         createdAt: new Date(post.createdAt).toLocaleDateString(),
         updatedAt: new Date(post.updatedAt).toLocaleDateString(),
       }));
@@ -116,6 +117,7 @@ export default function PostsTable({
           title: postData.title,
           content: postData.content,
           status: postData.status as "draft" | "published" | "archived",
+          file: postData.file,
         };
 
         await PostService.updatePost(postData.id.toString(), updatePostData);
@@ -129,6 +131,7 @@ export default function PostsTable({
           content: postData.content,
           status:
             (postData.status as "draft" | "published" | "archived") || "draft",
+          file: postData.file,
         };
 
         await PostService.createPost(createPostData);
@@ -257,6 +260,38 @@ export default function PostsTable({
     },
     { field: "title", headerName: "Title", width: 200, editable: true },
     { field: "content", headerName: "Content", width: 300 },
+    {
+      field: "fileMetadata",
+      headerName: "File metadata",
+      width: 200,
+      renderCell: (params) => {
+        const fileMetadata = params.value;
+        if (fileMetadata) {
+          return (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                // alignItems: "center",
+                // gap: 1,
+              }}
+            >
+              <Typography variant="body2" noWrap>
+                Name:{fileMetadata.name}
+              </Typography>
+              <Typography variant="body2" noWrap>
+                Type: {fileMetadata.type}
+              </Typography>
+            </Box>
+          );
+        }
+        return (
+          <Typography variant="body2" color="text.secondary">
+            No file
+          </Typography>
+        );
+      },
+    },
     { field: "author", headerName: "Author", width: 200 },
     { field: "status", headerName: "Status", width: 200 },
     { field: "createdAt", headerName: "Created At", width: 200 },

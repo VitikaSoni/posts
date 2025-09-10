@@ -13,7 +13,9 @@ import {
   Box,
   Typography,
   Alert,
+  FormHelperText,
 } from "@mui/material";
+import { AttachFile, Delete } from "@mui/icons-material";
 // import { LoadingButton } from '@mui/lab';
 
 export interface PostData {
@@ -23,6 +25,11 @@ export interface PostData {
   status: "draft" | "published" | "archived";
   author?: string;
   image?: string;
+  file?: File;
+  fileMetadata?: {
+    name: string;
+    type: string;
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -54,6 +61,7 @@ export default function EditDialog({
     status: "draft",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Reset form when dialog opens/closes or post changes
   useEffect(() => {
@@ -66,6 +74,7 @@ export default function EditDialog({
           status: post.status || "draft",
           author: post.author,
           image: post.image,
+          fileMetadata: post.fileMetadata,
           createdAt: post.createdAt,
           updatedAt: post.updatedAt,
         });
@@ -76,6 +85,7 @@ export default function EditDialog({
           status: "draft",
         });
       }
+      setSelectedFile(null);
       setErrors({});
     }
   }, [open, post]);
@@ -99,6 +109,28 @@ export default function EditDialog({
         }));
       }
     };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    setSelectedFile(file);
+
+    // Clear file error when user selects a file
+    if (errors.file) {
+      setErrors((prev) => ({
+        ...prev,
+        file: "",
+      }));
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    // Clear the file input
+    const fileInput = document.getElementById("file-input") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -125,7 +157,11 @@ export default function EditDialog({
 
   const handleSave = () => {
     if (validateForm()) {
-      onSave(formData);
+      const postDataWithFile = {
+        ...formData,
+        file: selectedFile || undefined,
+      };
+      onSave(postDataWithFile);
     }
   };
 
@@ -202,6 +238,79 @@ export default function EditDialog({
               </Typography>
             )}
           </FormControl>
+
+          {/* File Upload Field */}
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Attach File (Optional)
+            </Typography>
+            <input
+              id="file-input"
+              type="file"
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+              accept="*/*"
+            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Button
+                variant="outlined"
+                startIcon={<AttachFile />}
+                onClick={() => document.getElementById("file-input")?.click()}
+                sx={{ minWidth: 120 }}
+              >
+                Choose File
+              </Button>
+              {selectedFile && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    flex: 1,
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    {selectedFile.name}
+                  </Typography>
+                  <Button
+                    size="small"
+                    startIcon={<Delete />}
+                    onClick={handleRemoveFile}
+                    color="error"
+                    variant="text"
+                  >
+                    Remove
+                  </Button>
+                </Box>
+              )}
+              {formData.fileMetadata && !selectedFile && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    flex: 1,
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    Current: {formData.fileMetadata.name}
+                  </Typography>
+                  <Button
+                    size="small"
+                    startIcon={<Delete />}
+                    onClick={handleRemoveFile}
+                    color="error"
+                    variant="text"
+                  >
+                    Remove
+                  </Button>
+                </Box>
+              )}
+            </Box>
+            {errors.file && (
+              <FormHelperText error>{errors.file}</FormHelperText>
+            )}
+          </Box>
 
           {/* Show validation errors */}
           {Object.keys(errors).length > 0 && (

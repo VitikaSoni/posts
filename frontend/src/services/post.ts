@@ -1,6 +1,11 @@
 import api from "@/configs/axios";
 
 // Post interfaces
+export interface FileMetadata {
+  name: string;
+  type: string;
+}
+
 export interface Post {
   _id: string;
   title: string;
@@ -8,9 +13,9 @@ export interface Post {
   author: {
     _id: string;
     username: string;
-    email: string;
   };
   status: "draft" | "published" | "archived";
+  fileMetadata?: FileMetadata;
   createdAt: string;
   updatedAt: string;
 }
@@ -19,12 +24,14 @@ export interface CreatePostRequest {
   title: string;
   content: string;
   status?: "draft" | "published" | "archived";
+  file?: File;
 }
 
 export interface UpdatePostRequest {
   title?: string;
   content?: string;
   status?: "draft" | "published" | "archived";
+  file?: File;
 }
 
 export interface PostQueryParams {
@@ -81,7 +88,21 @@ export const PostService = {
 
   // Create a new post
   createPost: async function (postData: CreatePostRequest): Promise<Post> {
-    const res = await api.post(BASE_PATH, postData);
+    const formData = new FormData();
+    formData.append("title", postData.title);
+    formData.append("content", postData.content);
+    if (postData.status) {
+      formData.append("status", postData.status);
+    }
+    if (postData.file) {
+      formData.append("file", postData.file);
+    }
+
+    const res = await api.post(BASE_PATH, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return res.data;
   },
 
@@ -90,7 +111,25 @@ export const PostService = {
     id: string,
     postData: UpdatePostRequest
   ): Promise<Post> {
-    const res = await api.put(`${BASE_PATH}/${id}`, postData);
+    const formData = new FormData();
+    if (postData.title) {
+      formData.append("title", postData.title);
+    }
+    if (postData.content) {
+      formData.append("content", postData.content);
+    }
+    if (postData.status) {
+      formData.append("status", postData.status);
+    }
+    if (postData.file) {
+      formData.append("file", postData.file);
+    }
+
+    const res = await api.put(`${BASE_PATH}/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return res.data;
   },
 
