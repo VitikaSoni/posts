@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Drawer,
   List,
@@ -13,20 +13,17 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Paper,
-  Menu,
-  MenuItem,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
-import {
-  Settings as SettingsIcon,
-  Logout as LogoutIcon,
-  DynamicFeed,
-  LibraryBooks,
-  Person,
-} from "@mui/icons-material";
+import { DynamicFeed, LibraryBooks, Person, Logout } from "@mui/icons-material";
 import ROUTES from "../../configs/routes";
+import { type RootState } from "@/store";
 import { logout } from "@/store/authSlice";
-// import { signOut } from "@/configs/firebase";
 
 interface NavItem {
   id: string;
@@ -46,12 +43,11 @@ const Navigation = ({
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [profileAnchorEl, setProfileAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
+  const { role, username } = useSelector((state: RootState) => state.auth);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   // Define navigation items
-  const navItems: NavItem[] = [
+  const allNavItems: NavItem[] = [
     {
       id: "posts",
       label: "Posts",
@@ -75,23 +71,36 @@ const Navigation = ({
     },
   ];
 
+  // Filter navigation items based on user role
+  const navItems = allNavItems.filter((item) => {
+    if (item.id === "posts") {
+      return role === "admin"; // Only show Posts tab to admins
+    }
+    return true; // Show all other tabs to everyone
+  });
+
   const handleNavigation = (path: string) => {
     navigate(path);
   };
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleLogoutConfirm = async () => {
     try {
       await dispatch(logout() as any);
       navigate(ROUTES.LANDING, { replace: true });
     } catch (error) {
       console.error("Error during logout:", error);
       navigate(ROUTES.LANDING, { replace: true });
+    } finally {
+      setLogoutDialogOpen(false);
     }
-    setProfileAnchorEl(null);
   };
 
-  const handleProfileMenuClose = () => {
-    setProfileAnchorEl(null);
+  const handleLogoutCancel = () => {
+    setLogoutDialogOpen(false);
   };
 
   // Helper function to check if current pathname matches any excluded route pattern
@@ -143,12 +152,37 @@ const Navigation = ({
           }}
         >
           <Typography
-            variant="h6"
+            variant="h4"
             sx={{ fontWeight: "bold", color: "primary.main" }}
           >
             Posts Dashboard
           </Typography>
         </Box>
+        {username && (
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              mt: 1,
+              display: "block",
+            }}
+          >
+            Username: {username}
+          </Typography>
+        )}
+        {role && (
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              mt: 0.5,
+              display: "block",
+              textTransform: "capitalize",
+            }}
+          >
+            Role: {role}
+          </Typography>
+        )}
       </Box>
 
       <List sx={{ flexGrow: 1, px: 1, py: 2 }}>
@@ -182,6 +216,34 @@ const Navigation = ({
           </ListItem>
         ))}
       </List>
+
+      {/* Logout Button */}
+      <Box sx={{ p: 2, borderTop: "1px solid #e2e8f0" }}>
+        <ListItemButton
+          onClick={handleLogoutClick}
+          sx={{
+            borderRadius: 2,
+            backgroundColor: "transparent",
+            color: "error.main",
+            "&:hover": {
+              backgroundColor: "error.light",
+              color: "white",
+            },
+            py: 1.5,
+            px: 2,
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+            <Logout />
+          </ListItemIcon>
+          <ListItemText
+            primary="Logout"
+            primaryTypographyProps={{
+              fontWeight: 500,
+            }}
+          />
+        </ListItemButton>
+      </Box>
     </Drawer>
   );
 
@@ -223,55 +285,45 @@ const Navigation = ({
               }}
             />
           ))}
+          <BottomNavigationAction
+            label="Logout"
+            icon={<Logout />}
+            onClick={handleLogoutClick}
+            sx={{
+              color: "error.main",
+              "&.Mui-selected": {
+                color: "error.main",
+              },
+            }}
+          />
         </BottomNavigation>
       </Paper>
     );
   };
 
-  // Profile Menu Component
-  const ProfileMenu = () => (
-    <Menu
-      anchorEl={profileAnchorEl}
-      open={Boolean(profileAnchorEl)}
-      onClose={handleProfileMenuClose}
-      PaperProps={{
-        sx: {
-          mt: 1.5,
-          minWidth: 200,
-          "& .MuiMenuItem-root": {
-            px: 2,
-            py: 1.5,
-          },
-        },
-      }}
-      transformOrigin={{ horizontal: "right", vertical: "top" }}
-      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+  // Logout Confirmation Dialog
+  const LogoutDialog = () => (
+    <Dialog
+      open={logoutDialogOpen}
+      onClose={handleLogoutCancel}
+      aria-labelledby="logout-dialog-title"
+      aria-describedby="logout-dialog-description"
     >
-      <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #e2e8f0" }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-          John Doe
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          john.doe@email.com
-        </Typography>
-      </Box>
-
-      <MenuItem onClick={handleProfileMenuClose}>
-        <ListItemIcon>
-          <SettingsIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>Settings</ListItemText>
-      </MenuItem>
-
-      <Divider />
-
-      <MenuItem onClick={handleLogout}>
-        <ListItemIcon>
-          <LogoutIcon fontSize="small" sx={{ color: "error.main" }} />
-        </ListItemIcon>
-        <ListItemText sx={{ color: "error.main" }}>Logout</ListItemText>
-      </MenuItem>
-    </Menu>
+      <DialogTitle id="logout-dialog-title">Logout</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="logout-dialog-description">
+          Are you sure you want to logout?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleLogoutCancel} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={handleLogoutConfirm} color="error" variant="contained">
+          Logout
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 
   return (
@@ -284,7 +336,7 @@ const Navigation = ({
         <MobileBottomNavigation />
       )}
 
-      <ProfileMenu />
+      <LogoutDialog />
     </>
   );
 };

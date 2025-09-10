@@ -4,6 +4,11 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+export interface RefreshResponse {
+  accessToken: string;
+  username: string;
+}
+
 const BASE_PATH = "/auth";
 
 export const AuthService = {
@@ -12,11 +17,12 @@ export const AuthService = {
     password: string,
     role?: string
   ) {
-    api.post(`${BASE_PATH}/register`, {
+    const res = await api.post(`${BASE_PATH}/register`, {
       username,
       password,
       role,
     });
+    return res.data;
   },
 
   loginUser: async function (
@@ -30,7 +36,7 @@ export const AuthService = {
     // withCredentials:true ensures cookies (refresh token) are sent
     return res.data;
   },
-  refreshAccessToken: async function (): Promise<LoginResponse> {
+  refreshAccessToken: async function (): Promise<RefreshResponse> {
     const res = await api.post(`${BASE_PATH}/refresh_token`, {});
     return res.data;
   },

@@ -8,8 +8,6 @@ import {
   verifyRefreshToken,
 } from "../utils/jwt";
 import cookieParser from "cookie-parser";
-import { verifyAccessToken } from "../utils/jwt";
-import { AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
 router.use(cookieParser());
@@ -23,9 +21,18 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       role,
     });
-    res.status(201).json({ message: "User created", userId: user._id });
-  } catch (err) {
-    res.status(400).json({ message: "Error creating user", error: err });
+    res
+      .status(201)
+      .json({ message: "User registered successfully", userId: user._id });
+  } catch (err: any) {
+    if (err.code === 11000) {
+      // MongoDB duplicate key error
+      res.status(400).json({ message: "Username already exists" });
+    } else {
+      res
+        .status(400)
+        .json({ message: "Error creating user", error: err.message });
+    }
   }
 });
 
@@ -51,7 +58,11 @@ router.post("/login", async (req, res) => {
       sameSite: "lax", // "lax" works for localhost
       path: "/", // cookie accessible from all endpoints
     });
-    return res.json({ accessToken });
+    return res.json({
+      accessToken,
+      message: "Login successful",
+      username: user.username,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -75,7 +86,7 @@ router.post("/refresh_token", async (req, res) => {
     }
 
     const accessToken = createAccessToken(user);
-    return res.json({ accessToken });
+    return res.json({ accessToken, username: user.username });
   } catch (err) {
     return res.status(401).json({ message: "Invalid refresh token" });
   }

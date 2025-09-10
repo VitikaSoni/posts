@@ -2,6 +2,7 @@ import axios from "axios";
 import { store } from "../store";
 import { setCredentials, logout } from "@/store/authSlice";
 import { AuthService } from "@/services/auth";
+import { showError, showSuccess } from "@/store/notificationSlice";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -38,9 +39,16 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Response interceptor to handle 401 and refresh token
+// Response interceptor to handle 401, refresh token, and show notifications
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    // Show success notification for successful operations (except GET requests)
+    // Only show if the backend explicitly provides a message
+    if (res.config.method !== "get" && res.data?.message) {
+      store.dispatch(showSuccess(res.data.message));
+    }
+    return res;
+  },
   async (err) => {
     const originalRequest = err.config;
 
@@ -87,6 +95,16 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     }
+
+    // Show error notification for API errors
+    const errorMessage =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      err.message ||
+      "An unexpected error occurred";
+
+    store.dispatch(showError(errorMessage));
+
     return Promise.reject(err);
   }
 );

@@ -15,6 +15,8 @@ import Posts from "./pages/Posts";
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
+import MyPosts from "./pages/MyPosts";
+import NotificationProvider from "./components/NotificationProvider";
 
 const theme = createTheme({
   palette: {
@@ -238,6 +240,14 @@ function App() {
             }
           />
           <Route
+            path={ROUTES.MY_POSTS}
+            element={
+              <ProtectedRoute>
+                <MyPosts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path={ROUTES.PROFILE}
             element={
               <ProtectedRoute>
@@ -247,6 +257,7 @@ function App() {
           />
         </Routes>
       </Box>
+      <NotificationProvider />
     </ThemeProvider>
   );
 }

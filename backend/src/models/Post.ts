@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IPost, IPostDocument } from "../types/Post";
+import { IPost, IPostDocument } from "../types/post";
 
 const postSchema = new Schema<IPostDocument>(
   {
@@ -18,6 +18,11 @@ const postSchema = new Schema<IPostDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    status: {
+      type: String,
+      enum: ["draft", "published", "archived"],
+      default: "draft",
     },
   },
   {

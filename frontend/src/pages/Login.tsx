@@ -5,7 +5,6 @@ import {
   TextField,
   Button,
   Container,
-  Alert,
   CircularProgress,
   Link,
 } from "@mui/material";
@@ -37,7 +36,6 @@ const Login = () => {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {
@@ -73,7 +71,6 @@ const Login = () => {
       if (errors[field]) {
         setErrors((prev) => ({ ...prev, [field]: "" }));
       }
-      setSubmitError("");
     };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -84,7 +81,6 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    setSubmitError("");
 
     try {
       const loginData = await AuthService.loginUser(
@@ -98,11 +94,10 @@ const Login = () => {
         })
       );
 
-      navigate(ROUTES.POSTS);
+      navigate(ROUTES.MY_POSTS);
     } catch (error) {
-      setSubmitError(
-        "Login failed. Please check your credentials and try again."
-      );
+      // Error handling is now centralized in axios interceptor
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -125,12 +120,6 @@ const Login = () => {
             Sign in to your account
           </Typography>
         </Box>
-
-        {submitError && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {submitError}
-          </Alert>
-        )}
 
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
           <TextField

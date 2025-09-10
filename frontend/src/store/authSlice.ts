@@ -1,5 +1,6 @@
 // src/store/authSlice.ts
 import { AuthService } from "@/services/auth";
+import { decodeJWT } from "@/utils/jwt";
 import {
   createAsyncThunk,
   createSlice,
@@ -9,9 +10,14 @@ import {
 interface AuthState {
   accessToken: string | null;
   username: string | null;
+  role: string | null;
 }
 
-const initialState: AuthState = { accessToken: null, username: null };
+const initialState: AuthState = {
+  accessToken: null,
+  username: null,
+  role: null,
+};
 
 export const logout = createAsyncThunk("auth/logout", async () => {
   await AuthService.logoutUser();
@@ -36,6 +42,10 @@ const authSlice = createSlice({
     ) => {
       state.accessToken = action.payload.accessToken;
       state.username = action.payload.username;
+
+      // Extract role from JWT token
+      const decoded = decodeJWT(action.payload.accessToken);
+      state.role = decoded?.role || null;
     },
   },
   extraReducers: (builder) => {
@@ -43,15 +53,20 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.accessToken = null;
         state.username = null;
+        state.role = null;
       })
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
         state.accessToken = action.payload.accessToken;
-        // Keep the existing username, don't update it on refresh
+        state.username = action.payload.username;
+        // Extract role from new token
+        const decoded = decodeJWT(action.payload.accessToken);
+        state.role = decoded?.role || null;
       })
       .addCase(refreshAccessToken.rejected, (state) => {
         // If refresh fails, clear the auth state
         state.accessToken = null;
         state.username = null;
+        state.role = null;
       });
   },
 });

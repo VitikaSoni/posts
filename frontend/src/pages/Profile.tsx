@@ -1,22 +1,11 @@
 // pages/Profile.tsx
-import { logout } from "@/store/authSlice";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-// import { AppDispatch } from "@/store";
-// import { changePassword, logout } from "@/store/authSlice";
-import { useNavigate } from "react-router-dom";
-import type { AppDispatch } from "@/store";
-import ROUTES from "@/configs/routes";
 
 const Profile: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [message, setMessage] = useState("");
 
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleChangePassword = async () => {
     //   e.preventDefault();
     //   try {
     //     await dispatch(changePassword({ oldPassword, newPassword })).unwrap();
@@ -26,11 +15,6 @@ const Profile: React.FC = () => {
     //   } catch (err: any) {
     //     setMessage(err.message || "Failed to change password");
     //   }
-  };
-
-  const handleLogout = async () => {
-    await dispatch(logout());
-    navigate(ROUTES.LANDING);
   };
 
   return (
@@ -61,15 +45,6 @@ const Profile: React.FC = () => {
           Change Password
         </button>
       </form>
-
-      {message && <p className="mt-3 text-sm text-gray-600">{message}</p>}
-
-      <button
-        onClick={handleLogout}
-        className="mt-6 w-full bg-red-500 text-white p-2 rounded hover:bg-red-600"
-      >
-        Logout
-      </button>
     </div>
   );
 };

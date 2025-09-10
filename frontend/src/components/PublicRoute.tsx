@@ -13,7 +13,7 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
 
   if (accessToken) {
     // Redirect logged-in users to /posts
-    return <Navigate to={ROUTES.POSTS} replace />;
+    return <Navigate to={ROUTES.MY_POSTS} replace />;
   }
 
   return children;

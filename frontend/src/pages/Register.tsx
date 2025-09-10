@@ -10,7 +10,6 @@ import {
   Select,
   MenuItem,
   FormHelperText,
-  Alert,
   CircularProgress,
   Link,
 } from "@mui/material";
@@ -51,7 +50,6 @@ const Register = () => {
     role: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {
@@ -109,7 +107,6 @@ const Register = () => {
       if (errors[field]) {
         setErrors((prev) => ({ ...prev, [field]: "" }));
       }
-      setSubmitError("");
     };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -120,17 +117,16 @@ const Register = () => {
     }
 
     setIsLoading(true);
-    setSubmitError("");
 
     try {
-      // Simulate API call
+      // Register the user
       await AuthService.registerUser(
         formData.username,
         formData.password,
         formData.role
       );
 
-      // 2️⃣ Automatically log in the user after registration
+      // Automatically log in the user after successful registration
       const loginData = await AuthService.loginUser(
         formData.username,
         formData.password
@@ -142,9 +138,11 @@ const Register = () => {
         })
       );
 
-      navigate(ROUTES.POSTS);
-    } catch (error) {
-      setSubmitError("Registration failed. Please try again.");
+      navigate(ROUTES.MY_POSTS);
+    } catch (error: any) {
+      // Error handling is now centralized in axios interceptor
+      // This catch block is mainly for any additional error handling if needed
+      console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -168,12 +166,6 @@ const Register = () => {
             Create Account
           </Typography>
         </Box>
-
-        {submitError && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {submitError}
-          </Alert>
-        )}
 
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
           <TextField

@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
-    "dev:watch": "nodemon --exec ts-node src/server.ts",
+    "dev:watch": "nodemon",
+    "dev:watch:verbose": "nodemon --verbose",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

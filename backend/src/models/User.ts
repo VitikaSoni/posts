@@ -6,6 +6,7 @@ const userSchema = new Schema<IUserDocument>(
     username: {
       type: String,
       required: true,
+      unique: true,
       trim: true,
       maxlength: 20,
     },
