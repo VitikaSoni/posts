@@ -30,3 +30,18 @@ Frontend
 - Add your env vars in the `.env`
 - `npm i`
 - `npm run dev`
+
+### Features
+
+- Password hashing
+- JWT + refresh token auth
+- Route protection
+- Role-based authorization
+  - Admins can manage all posts
+  - Regular users can only manage their own posts
+- Sidebar for desktop and bottom bar for mobile and tablet
+- MUI data-grid for posts
+- Dialogs for operations on posts
+- CRUD for posts
+- Adding comments on posts (by any logged-in user)
+- Responsive
