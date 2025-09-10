@@ -80,7 +80,6 @@ api.interceptors.response.use(
         store.dispatch(
           setCredentials({
             accessToken: data.accessToken,
-            username: store.getState().auth.username!,
           })
         );
 

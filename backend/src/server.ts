@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import postsRoutes from "./routes/posts";
+import profileRoutes from "./routes/profile";
 import cookieParser from "cookie-parser";
 
 dotenv.config();
@@ -47,6 +48,7 @@ mongoose
 // Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postsRoutes);
+app.use("/profile", profileRoutes);
 
 // Health check
 app.get("/health", (req: Request, res: Response) => {

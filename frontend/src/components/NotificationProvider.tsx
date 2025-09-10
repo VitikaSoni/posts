@@ -79,6 +79,7 @@ const NotificationProvider: React.FC = () => {
                 fontSize: "0.875rem",
                 fontWeight: 500,
               },
+              backgroundColor: "white",
             }}
           >
             {notification.message}

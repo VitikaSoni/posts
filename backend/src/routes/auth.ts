@@ -13,10 +13,11 @@ const router = express.Router();
 router.use(cookieParser());
 
 router.post("/register", async (req, res) => {
-  const { username, password, role }: CreateUserRequest = req.body;
+  const { name, username, password, role }: CreateUserRequest = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const user = await User.create({
+      name,
       username,
       password: hashedPassword,
       role,
@@ -61,7 +62,6 @@ router.post("/login", async (req, res) => {
     return res.json({
       accessToken,
       message: "Login successful",
-      username: user.username,
     });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
@@ -86,7 +86,7 @@ router.post("/refresh_token", async (req, res) => {
     }
 
     const accessToken = createAccessToken(user);
-    return res.json({ accessToken, username: user.username });
+    return res.json({ accessToken });
   } catch (err) {
     return res.status(401).json({ message: "Invalid refresh token" });
   }

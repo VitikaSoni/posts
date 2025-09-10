@@ -48,6 +48,8 @@ const Login = () => {
       newErrors.username = "Username is required";
     } else if (formData.username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
+    } else if (formData.username.length > 20) {
+      newErrors.username = "Username must be at most 20 characters";
     }
 
     // Password validation
@@ -90,7 +92,6 @@ const Login = () => {
       dispatch(
         setCredentials({
           accessToken: loginData.accessToken,
-          username: formData.username,
         })
       );
 
@@ -131,6 +132,7 @@ const Login = () => {
             helperText={errors.username}
             margin="normal"
             required
+            inputProps={{ maxLength: 20 }}
             sx={{ mb: 2 }}
           />
 

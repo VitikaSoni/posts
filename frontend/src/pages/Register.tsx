@@ -21,6 +21,7 @@ import { AuthService } from "@/services/auth";
 import { setCredentials } from "@/store/authSlice";
 
 interface FormData {
+  name: string;
   username: string;
   password: string;
   confirmPassword: string;
@@ -28,6 +29,7 @@ interface FormData {
 }
 
 interface FormErrors {
+  name: string;
   username: string;
   password: string;
   confirmPassword: string;
@@ -38,12 +40,14 @@ const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
+    name: "",
     username: "",
     password: "",
     confirmPassword: "",
     role: "",
   });
   const [errors, setErrors] = useState<FormErrors>({
+    name: "",
     username: "",
     password: "",
     confirmPassword: "",
@@ -53,17 +57,27 @@ const Register = () => {
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {
+      name: "",
       username: "",
       password: "",
       confirmPassword: "",
       role: "",
     };
 
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (formData.name.length > 20) {
+      newErrors.name = "Name must be at most 20 characters";
+    }
+
     // Username validation
     if (!formData.username.trim()) {
       newErrors.username = "Username is required";
     } else if (formData.username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
+    } else if (formData.username.length > 20) {
+      newErrors.username = "Username must be at most 20 characters";
     } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
       newErrors.username =
         "Username can only contain letters, numbers, and underscores";
@@ -121,6 +135,7 @@ const Register = () => {
     try {
       // Register the user
       await AuthService.registerUser(
+        formData.name,
         formData.username,
         formData.password,
         formData.role
@@ -134,7 +149,6 @@ const Register = () => {
       dispatch(
         setCredentials({
           accessToken: loginData.accessToken,
-          username: formData.username,
         })
       );
 
@@ -170,6 +184,19 @@ const Register = () => {
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
           <TextField
             fullWidth
+            label="Name"
+            value={formData.name}
+            onChange={handleInputChange("name")}
+            error={!!errors.name}
+            helperText={errors.name}
+            margin="normal"
+            required
+            inputProps={{ maxLength: 20 }}
+            sx={{ mb: 2 }}
+          />
+
+          <TextField
+            fullWidth
             label="Username"
             value={formData.username}
             onChange={handleInputChange("username")}
@@ -177,6 +204,7 @@ const Register = () => {
             helperText={errors.username}
             margin="normal"
             required
+            inputProps={{ maxLength: 20 }}
             sx={{ mb: 2 }}
           />
 

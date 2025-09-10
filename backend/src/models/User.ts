@@ -3,6 +3,12 @@ import { IUser, IUserDocument } from "../types/user";
 
 const userSchema = new Schema<IUserDocument>(
   {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 20,
+    },
     username: {
       type: String,
       required: true,

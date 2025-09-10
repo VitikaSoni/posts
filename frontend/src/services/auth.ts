@@ -13,11 +13,13 @@ const BASE_PATH = "/auth";
 
 export const AuthService = {
   registerUser: async function (
+    name: string,
     username: string,
     password: string,
     role?: string
   ) {
     const res = await api.post(`${BASE_PATH}/register`, {
+      name,
       username,
       password,
       role,

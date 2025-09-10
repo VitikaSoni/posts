@@ -36,16 +36,13 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setCredentials: (
-      state,
-      action: PayloadAction<{ accessToken: string; username: string }>
-    ) => {
+    setCredentials: (state, action: PayloadAction<{ accessToken: string }>) => {
       state.accessToken = action.payload.accessToken;
-      state.username = action.payload.username;
 
       // Extract role from JWT token
       const decoded = decodeJWT(action.payload.accessToken);
       state.role = decoded?.role || null;
+      state.username = decoded?.username || null;
     },
   },
   extraReducers: (builder) => {
@@ -57,10 +54,11 @@ const authSlice = createSlice({
       })
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
         state.accessToken = action.payload.accessToken;
-        state.username = action.payload.username;
+
         // Extract role from new token
         const decoded = decodeJWT(action.payload.accessToken);
         state.role = decoded?.role || null;
+        state.username = decoded?.username || null;
       })
       .addCase(refreshAccessToken.rejected, (state) => {
         // If refresh fails, clear the auth state
