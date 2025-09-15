@@ -22,8 +22,6 @@ import {
   type CreatePostRequest,
   type UpdatePostRequest,
 } from "@/services/post";
-import { useSelector } from "react-redux";
-import { type RootState } from "@/store";
 import ROUTES from "@/configs/routes";
 import { useNavigate } from "react-router-dom";
 
@@ -122,10 +120,27 @@ export default function PostsTable({
           file: postData.file,
         };
 
-        await PostService.updatePost(postData.id.toString(), updatePostData);
+        const updatedPost = await PostService.updatePost(
+          postData.id.toString(),
+          updatePostData
+        );
 
-        // Refresh the current page instead of updating local state
-        loadPosts(paginationModel.page, paginationModel.pageSize);
+        setRows((prevRows) =>
+          prevRows.map((row) =>
+            row.id === postData.id
+              ? {
+                  ...row,
+                  title: updatedPost.title,
+                  content: updatedPost.content,
+                  status: updatedPost.status,
+                  fileMetadata: updatedPost.fileMetadata,
+                  updatedAt: new Date(
+                    updatedPost.updatedAt
+                  ).toLocaleDateString(),
+                }
+              : row
+          )
+        );
       } else {
         // Create new post using API
         const createPostData: CreatePostRequest = {
@@ -136,10 +151,22 @@ export default function PostsTable({
           file: postData.file,
         };
 
-        await PostService.createPost(createPostData);
+        const newPost = await PostService.createPost(createPostData);
 
-        // Refresh the current page instead of adding to local state
-        loadPosts(paginationModel.page, paginationModel.pageSize);
+        // Add to local state instead of reloading
+        const newGridPost = {
+          id: newPost._id,
+          title: newPost.title,
+          content: newPost.content,
+          author: newPost.author.username,
+          status: newPost.status,
+          fileMetadata: newPost.fileMetadata,
+          createdAt: new Date(newPost.createdAt).toLocaleDateString(),
+          updatedAt: new Date(newPost.updatedAt).toLocaleDateString(),
+        };
+
+        setRows((prevRows) => [newGridPost, ...prevRows]);
+        setTotalRows((prevTotal) => prevTotal + 1);
       }
 
       setEditDialogOpen(false);
@@ -180,8 +207,11 @@ export default function PostsTable({
       // Delete post using API
       await PostService.deletePost(postToDelete.id.toString());
 
-      // Refresh the current page instead of removing from local state
-      loadPosts(paginationModel.page, paginationModel.pageSize);
+      // Remove from local state instead of reloading
+      setRows((prevRows) =>
+        prevRows.filter((row) => row.id !== postToDelete.id)
+      );
+      setTotalRows((prevTotal) => prevTotal - 1);
 
       // Close dialog and reset state
       setDeleteDialogOpen(false);
