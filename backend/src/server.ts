@@ -8,7 +8,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import mongoose from "mongoose";
-import { createClient } from "redis";
+import redisService from "./utils/redis";
 import authRoutes from "./routes/auth";
 import postsRoutes from "./routes/posts";
 import profileRoutes from "./routes/profile";
@@ -48,56 +48,31 @@ mongoose
     process.exit(1);
   });
 
-// Redis connection
-// const REDIS_URL = process.env.REDIS_URL;
-// const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
-
-// if (!REDIS_URL) {
-//   throw new Error("REDIS_URL is not defined");
-// }
-
-// if (!REDIS_PASSWORD) {
-//   throw new Error("REDIS_PASSWORD is not defined");
-// }
-
-// const redisClient = createClient({
-//   url: REDIS_URL,
-//   password: REDIS_PASSWORD,
-// });
-
-// redisClient.on("error", (error) => {
-//   console.error("Redis connection error:", error);
-// });
-
-// redisClient.on("connect", () => {
-//   console.log("Connected to Redis successfully");
-// });
-
-// redisClient.on("ready", () => {
-//   console.log("Redis client ready");
-// });
-
-// redisClient.on("end", () => {
-//   console.log("Redis connection ended");
-// });
-
-// // Connect to Redis
-// redisClient.connect().catch((error) => {
+// Connect to Redis
+// redisService.connect().catch((error) => {
 //   console.error("Failed to connect to Redis:", error);
 // });
 
-// // Graceful shutdown
+// Graceful shutdown
 // process.on("SIGINT", async () => {
 //   console.log("Shutting down gracefully...");
-//   await redisClient.quit();
+//   try {
+//     await redisService.disconnect();
+//   } catch (error) {
+//     console.error("Error disconnecting from Redis:", error);
+//   }
 //   process.exit(0);
 // });
 
-// process.on("SIGTERM", async () => {
-//   console.log("Shutting down gracefully...");
-//   await redisClient.quit();
-//   process.exit(0);
-// });
+process.on("SIGTERM", async () => {
+  console.log("Shutting down gracefully...");
+  try {
+    await redisService.disconnect();
+  } catch (error) {
+    console.error("Error disconnecting from Redis:", error);
+  }
+  process.exit(0);
+});
 
 // Routes
 app.use("/auth", authRoutes);
@@ -123,6 +98,3 @@ app.use("*", (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// Export Redis client for use in other modules
-// export { redisClient };
